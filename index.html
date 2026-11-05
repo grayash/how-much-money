@@ -4,11 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="일하는 시간만큼 월급이 도트 그림에 쌓이는 모바일 웹">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://grayash.github.io/how-much-money/">
+<meta property="og:title" content="내 월급이 도트로 쌓이는 걸 보세요">
+<meta property="og:description" content="일한 시간만큼 월급이 돼지저금통에 쌓여요. 가입 없이 바로 해 보는 계산기예요. 세전 입력은 추정치예요.">
+<meta property="og:image" content="https://grayash.github.io/how-much-money/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="동전이 떨어지는 도트 돼지 저금통과 나 얼마 벌었지? 제목">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="내 월급이 도트로 쌓이는 걸 보세요">
+<meta name="twitter:description" content="일한 시간만큼 월급이 돼지저금통에 쌓여요. 가입 없이 바로 해 보는 계산기예요.">
+<meta name="twitter:image" content="https://grayash.github.io/how-much-money/og-image.png">
+<meta name="theme-color" content="#EEF2FF">
+<link rel="canonical" href="https://grayash.github.io/how-much-money/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
+a.btn{text-decoration:none}
+.shr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 </style>
 <title>나 얼마 벌었지?</title>
 </head>
@@ -101,9 +121,11 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-o
   <div class="grow"></div>
   <canvas id="ic" aria-hidden="true"></canvas>
   <h1>나 얼마 벌었지?</h1>
-  <p class="sub">일하는 시간만큼 월급이 도트로 쌓여요.<br>이 기기의 시간대 <b id="tzn"></b> 기준으로 계산해요.</p>
+  <p class="sub">일하는 시간만큼 월급이 도트로 쌓여요.<br>지금 폰에 설정된 시간으로 계산해요.</p>
   <div class="grow"></div>
   <button id="go" class="btn primary block" type="button">시작하기</button>
+  <button id="go0share" class="btn block" type="button">링크 공유하기</button>
+  <p id="smsg0" class="small-t" role="status"></p>
 </section>
 
 <section id="s1" class="screen" hidden>
@@ -198,6 +220,17 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-o
     <div id="iinfo" class="small-t"></div>
     <div><button id="iundo" class="btn small" type="button">방금 입력 취소</button></div>
   </div>
+  <div class="card">
+    <div class="lbl">친구에게 알려주기</div>
+    <button id="shr" class="btn primary block" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M12 15V4M7 8l5-5 5 5M5 13v7h14v-7"/></svg>결과 그림 공유하기</button>
+    <div class="shr">
+      <button id="cpl" class="btn small" type="button">링크 복사</button>
+      <a id="thr" class="btn small" href="https://www.threads.net/" target="_blank" rel="noopener">Threads</a>
+      <a id="xsh" class="btn small" href="https://twitter.com/" target="_blank" rel="noopener">X</a>
+    </div>
+    <p id="smsg" class="small-t" role="status"></p>
+    <p class="small-t">공유 그림에는 지금 쌓인 금액이 들어가요.</p>
+  </div>
   <p class="foot">세전으로 입력한 급여는 4대보험과 소득세를 대략 계산한 추정치예요. 실제 금액과 다를 수 있어요.</p>
 </section>
 
@@ -211,7 +244,6 @@ var TZ='Asia/Seoul';try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||TZ}
 var FMT=null;try{FMT=new Intl.DateTimeFormat('en-US',{timeZone:TZ,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'})}catch(e){}
 var RM=false;try{RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
 function nowP(){var o={};if(FMT){FMT.formatToParts(new Date()).forEach(function(p){if(p.type!=='literal')o[p.type]=Number(p.value)})}else{var n=new Date();o={year:n.getFullYear(),month:n.getMonth()+1,day:n.getDate(),hour:n.getHours(),minute:n.getMinutes(),second:n.getSeconds()}}return{y:o.year,m:o.month,d:o.day,s:(o.hour%24)*3600+o.minute*60+o.second}}
-$('tzn').textContent='('+TZ+')';
 
 var KEY='nle.v1';
 var DEF={0:{st:32400,en:64800,days:[0,1,1,1,1,1,0]},1:{st:36000,en:68400,days:[0,1,1,1,1,1,0]},2:{st:79200,en:21600},3:{st:36000,en:57600,days:[1,0,0,0,0,0,1]}};
@@ -399,7 +431,6 @@ function drawPig(c,ox,oy){
 (function(){
   var fc=document.createElement('canvas');fc.width=16;fc.height=16;var c=fc.getContext('2d');drawPig(c,0,0);
   var url=fc.toDataURL('image/png');
-  var l=document.createElement('link');l.rel='icon';l.type='image/png';l.href=url;document.head.appendChild(l);
   $('hpig').src=url;
 })();
 var ic=$('ic'),ictx=ic.getContext('2d'),IW=16,IH=22;
@@ -508,6 +539,55 @@ $('iadd').onclick=function(){
 $('iamt').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();$('iadd').click()}};
 $('iundo').onclick=function(){INC.pop();saveInc();iinfo()};
 
+var SITE='https://grayash.github.io/how-much-money/',TXT='내 월급이 도트로 쌓이는 걸 보세요';
+var lastRes=null,shareBlob=null,shareBusy=false;
+try{document.fonts.load('40px Jua');document.fonts.load('40px DotGothic16')}catch(e){}
+function setMsg(id,t){var m=$(id);if(m)m.textContent=t}
+function legacyCopy(t){try{var a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);var ok=document.execCommand('copy');document.body.removeChild(a);return ok}catch(e){return false}}
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t).then(function(){return true},function(){return legacyCopy(t)})}
+  return Promise.resolve(legacyCopy(t))
+}
+function copyMsg(id,t){copyText(t).then(function(ok){setMsg(id,ok?'링크를 복사했어요. 붙여넣어 공유해 주세요.':'복사가 안 됐어요. 주소를 길게 눌러 직접 복사해 주세요: '+SITE)})}
+function makeShareCanvas(){
+  var c=document.createElement('canvas');c.width=1080;c.height=1350;var x=c.getContext('2d');
+  var INK='#1F2347',SUB='#566096',FF='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  x.fillStyle='#EEF2FF';x.fillRect(0,0,1080,1350);
+  x.textAlign='center';x.fillStyle=INK;x.font='112px Jua,'+FF;x.fillText('나 얼마 벌었지?',540,200);
+  x.fillStyle=SUB;x.font='500 40px '+FF;x.fillText('월급이 도트로 쌓이는 걸 지켜보세요',540,278);
+  var sx=220,sy=318,sw=640;
+  x.fillStyle=INK;x.fillRect(sx-8,sy+6,sw+16,sw+16);x.fillRect(sx-8,sy-8,sw+16,sw+16);
+  x.imageSmoothingEnabled=false;x.drawImage(off,0,0,W,H,sx,sy,sw,sw);
+  var cy=sy+sw+56,ch=190;
+  x.fillStyle=INK;x.fillRect(90,cy+10,900,ch);
+  x.fillStyle='#FFFFFF';x.fillRect(90,cy,900,ch);x.strokeStyle=INK;x.lineWidth=6;x.strokeRect(93,cy+3,894,ch-6);
+  x.textAlign='left';x.fillStyle=SUB;x.font='500 32px '+FF;x.fillText('이번 달 1일 0시부터 쌓인 돈',130,cy+62);
+  x.fillStyle=INK;x.font='76px DotGothic16,'+FF;x.fillText(fmt(lastRes.total),130,cy+148);
+  var by=cy+ch+44;
+  x.fillStyle='#E3E8FF';x.fillRect(90,by,900,34);x.strokeRect(93,by+3,894,28);
+  x.fillStyle='#F2B33D';x.fillRect(96,by+6,Math.max(0,Math.min(100,lastRes.pct))/100*888,22);
+  x.textAlign='center';x.fillStyle=SUB;x.font='500 28px '+FF;
+  x.fillText((lastRes.gross?'세전 입력은 추정치예요':'세후 기준')+'  |  grayash.github.io/how-much-money',540,by+78);
+  return c
+}
+function refreshShare(){if(shareBusy||!lastRes)return;shareBusy=true;try{makeShareCanvas().toBlob(function(b){shareBlob=b;shareBusy=false},'image/png')}catch(e){shareBusy=false}}
+function shareLink(msgId){
+  if(!navigator.share){copyMsg(msgId,TXT+' '+SITE);return}
+  navigator.share({title:'나 얼마 벌었지?',text:TXT,url:SITE}).catch(function(e){if(e&&e.name==='AbortError')return;copyMsg(msgId,TXT+' '+SITE)})
+}
+function shareResult(){
+  if(!navigator.share){copyMsg('smsg',TXT+' '+SITE);return}
+  var data={title:'나 얼마 벌었지?',text:TXT,url:SITE};
+  try{if(shareBlob&&navigator.canShare){var f=new File([shareBlob],'how-much-money.png',{type:'image/png'});if(navigator.canShare({files:[f]}))data={title:'나 얼마 벌었지?',text:TXT+'\n'+SITE,files:[f]}}}catch(e){}
+  navigator.share(data).catch(function(e){if(e&&e.name==='AbortError')return;copyMsg('smsg',TXT+' '+SITE)})
+}
+$('go0share').onclick=function(){shareLink('smsg0')};
+$('shr').onclick=shareResult;
+$('cpl').onclick=function(){copyMsg('smsg',SITE)};
+$('thr').href='https://www.threads.net/intent/post?text='+encodeURIComponent(TXT+' '+SITE);
+$('xsh').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(TXT)+'&url='+encodeURIComponent(SITE);
+setInterval(function(){if(cur===5)refreshShare()},4000);
+
 var drops=[],lastSpawn=0,frame=0,sess={t0:Date.now(),s0:null};
 function sessReset(){sess={t0:Date.now(),s0:null};$('buy').hidden=true;$('buyb').setAttribute('aria-expanded','false')}
 function tick(){
@@ -529,6 +609,8 @@ function tick(){
   $('brk').textContent='월급 '+fmt(M.sal)+(incTotal?' + 인센티브 '+fmt(incTotal):'');
   var pct=fr*100;$('fill').style.width=pct.toFixed(2)+'%';
   $('fill').parentNode.setAttribute('aria-valuenow',String(Math.round(pct)));
+  lastRes={total:total,pct:pct,gross:S.tax==='gross'};
+  if(!shareBlob)refreshShare();
   var left=M.hi-M.nowT;
   if(M.Wtot<=0)$('cnt').textContent='월급날 전에 근무일이 없어요. 근무 설정을 확인해 주세요.';
   else if(left>0){var dd=Math.floor(left/86400),hh=Math.floor(left%86400/3600);$('cnt').textContent='월급 '+pct.toFixed(1)+'% · 월급날('+Math.min(S.payday,M.dim)+'일)까지 '+dd+'일 '+hh+'시간 남았어요'}
