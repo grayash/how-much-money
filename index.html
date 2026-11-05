@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="일하는 시간만큼 월급이 도트 그림에 쌓이는 모바일 웹">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>나 얼마 벌었지?</title>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* layout: one phone column; setup runs as full-height steps, the result screen stacks scene, amount, session and incentive cards */
+:root{--bg:#EEF2FF;--panel:#FFFFFF;--ink:#1F2347;--muted:#566096;--line:#C9D1F5;--soft:#E3E8FF;--pink:#E8508A;--pink-ink:#FFFFFF;--coin:#F2B33D;--coin2:#D9962A;--coin-ink:#33250A;--ok:#1F8F5F;--warn:#B8430A;--shadow:#1F2347;--f-disp:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--f-body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--f-num:'DotGothic16','Noto Sans KR',monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12152B;--panel:#1C2142;--ink:#F2F4FF;--muted:#A5ACDB;--line:#363D70;--soft:#252B55;--pink:#FF7FAE;--pink-ink:#2A0F1B;--coin:#FFC93C;--coin2:#E3A91F;--coin-ink:#2B2000;--ok:#4AD395;--warn:#FFA06B;--shadow:#05060F;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12152B;--panel:#1C2142;--ink:#F2F4FF;--muted:#A5ACDB;--line:#363D70;--soft:#252B55;--pink:#FF7FAE;--pink-ink:#2A0F1B;--coin:#FFC93C;--coin2:#E3A91F;--coin-ink:#2B2000;--ok:#4AD395;--warn:#FFA06B;--shadow:#05060F;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:460px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 32px}
+.screen{display:flex;flex-direction:column;gap:16px;min-height:calc(100vh - 48px)}
+.grow{flex:1}
+h1,h2{font-family:var(--f-disp);font-weight:400;margin:0;text-wrap:balance}
+h2{font-size:28px;line-height:1.25}
+p{margin:0}
+.sub{color:var(--muted);font-size:15px}
+.btn{font:700 16px var(--f-body);color:var(--ink);background:var(--panel);border:3px solid var(--ink);border-radius:6px;box-shadow:0 4px 0 var(--shadow);padding:12px 16px;min-height:50px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.btn.primary{background:var(--pink);color:var(--pink-ink)}
+.btn.block{width:100%}
+.btn.small{min-height:44px;padding:8px 14px;font-size:15px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.icb{width:48px;height:48px;border:3px solid var(--ink);border-radius:6px;background:var(--panel);color:var(--ink);box-shadow:0 3px 0 var(--shadow);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;touch-action:manipulation}
+.icb:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shadow)}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:square;stroke-linejoin:miter}
+.nav{display:flex;align-items:center;justify-content:space-between;min-height:48px}
+.dots{display:flex;gap:6px}
+.dots i{width:12px;height:12px;border:2px solid var(--ink);background:var(--panel);display:block}
+.dots i.on{background:var(--pink)}
+.opts{display:grid;gap:12px}
+.opt{text-align:left;font:inherit;color:var(--ink);background:var(--panel);border:3px solid var(--ink);border-radius:6px;box-shadow:0 4px 0 var(--shadow);padding:14px 16px;cursor:pointer;display:grid;gap:2px;touch-action:manipulation}
+.opt b{font:400 20px var(--f-disp)}
+.opt span{font-size:14px;color:var(--muted)}
+.opt[aria-pressed="true"]{background:var(--coin);color:var(--coin-ink)}
+.opt[aria-pressed="true"] span{color:var(--coin-ink)}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fld{display:grid;gap:6px;font-size:14px;font-weight:700;min-width:0}
+.fld input{width:100%;min-width:0;font:500 20px var(--f-body);color:var(--ink);background:var(--panel);border:3px solid var(--ink);border-radius:6px;padding:10px 12px;min-height:52px}
+.fld .unit{position:relative}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day{font:700 15px var(--f-body);color:var(--ink);background:var(--panel);border:3px solid var(--ink);border-radius:6px;min-height:48px;cursor:pointer;touch-action:manipulation;padding:0}
+.day[aria-pressed="true"]{background:var(--coin);color:var(--coin-ink)}
+.day:disabled{cursor:default;opacity:.85}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:3px solid var(--ink);border-radius:6px;overflow:hidden;box-shadow:0 4px 0 var(--shadow)}
+.seg button{font:700 17px var(--f-body);min-height:50px;border:0;background:var(--panel);color:var(--ink);cursor:pointer;touch-action:manipulation}
+.seg button+button{border-left:3px solid var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--coin);color:var(--coin-ink)}
+.note{font-size:14px;color:var(--muted);background:var(--soft);border-radius:6px;padding:10px 12px}
+.err{font-size:14px;font-weight:700;color:var(--warn)}
+.intro{align-items:center;text-align:center;justify-content:center}
+.intro canvas{image-rendering:pixelated;display:block}
+.intro h1{font-size:38px;line-height:1.2}
+.top{display:flex;align-items:center;gap:10px}
+.top h1{font-size:24px;flex:1}
+.top img{width:32px;height:32px;image-rendering:pixelated;flex:none}
+.stage{width:100%}
+.frame{display:block;width:max-content;max-width:100%;margin:6px auto 8px;line-height:0;border-radius:4px;box-shadow:0 0 0 3px var(--ink),0 7px 0 3px var(--shadow)}
+.frame canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.pick{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.sname{font:400 20px var(--f-disp)}
+.sdots{display:flex;gap:4px;margin-top:2px}
+.sdots button{width:30px;height:30px;padding:0;background:none;border:0;cursor:pointer;display:grid;place-items:center}
+.sdots button i{width:12px;height:12px;border:2px solid var(--ink);background:var(--panel);display:block}
+.sdots button[aria-current="true"] i{background:var(--pink)}
+.chip{align-self:flex-start;font-size:14px;font-weight:700;border:3px solid var(--ink);border-radius:6px;padding:4px 10px;background:var(--panel)}
+.chip.on{background:var(--coin);color:var(--coin-ink)}
+.chip.night{background:#3B3F8F;color:#FFFFFF}
+.card{background:var(--panel);border:3px solid var(--ink);border-radius:6px;box-shadow:0 4px 0 var(--shadow);padding:14px 16px;display:grid;gap:8px}
+.lbl{font-size:14px;color:var(--muted);font-weight:500}
+.big{font-family:var(--f-num);font-size:38px;line-height:1.15;letter-spacing:.5px;font-variant-numeric:tabular-nums;word-break:keep-all}
+.mid{font-family:var(--f-num);font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}
+.bar{height:20px;border:3px solid var(--ink);background:var(--soft);border-radius:4px;overflow:hidden}
+.fill{height:100%;width:0;background:repeating-linear-gradient(90deg,var(--coin) 0 6px,var(--coin2) 6px 8px)}
+.small-t{font-size:14px;color:var(--muted)}
+.buy{font-size:15px;background:var(--soft);border-radius:6px;padding:10px 12px}
+.irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+.foot{font-size:13px;color:var(--muted);padding:4px 2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){.btn,.opt,.icb{transition:none}}
+</style>
+
+<div class="wrap">
+
+<section id="s0" class="screen intro">
+  <div class="grow"></div>
+  <canvas id="ic" aria-hidden="true"></canvas>
+  <h1>나 얼마 벌었지?</h1>
+  <p class="sub">일하는 시간만큼 월급이 도트로 쌓여요.<br>이 기기의 시간대 <b id="tzn"></b> 기준으로 계산해요.</p>
+  <div class="grow"></div>
+  <button id="go" class="btn primary block" type="button">시작하기</button>
+</section>
+
+<section id="s1" class="screen" hidden>
+  <div class="nav"><button class="icb" id="b1" type="button" aria-label="처음으로"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" data-n="0"></div></div>
+  <h2>어떤 방식으로<br>일하세요?</h2>
+  <div class="opts">
+    <button class="opt" type="button" data-t="0" aria-pressed="true"><b>평일 근무</b><span>월~금, 정해진 시간에 일해요</span></button>
+    <button class="opt" type="button" data-t="1" aria-pressed="false"><b>선택 근무</b><span>일하는 요일과 시간을 직접 정해요</span></button>
+    <button class="opt" type="button" data-t="2" aria-pressed="false"><b>교대 근무</b><span>근무와 휴무가 돌아가요. 밤 10시~아침 6시는 1.5배</span></button>
+    <button class="opt" type="button" data-t="3" aria-pressed="false"><b>알바</b><span>정해진 요일에만 일해요</span></button>
+  </div>
+  <div class="grow"></div>
+  <button id="n1" class="btn primary block" type="button">다음</button>
+</section>
+
+<section id="s2" class="screen" hidden>
+  <div class="nav"><button class="icb" id="b2" type="button" aria-label="이전 단계"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" data-n="1"></div></div>
+  <h2>근무 시간을<br>알려주세요</h2>
+  <div class="row2">
+    <label class="fld" for="st">시작 시간<input id="st" type="time" value="09:00"></label>
+    <label class="fld" for="en">종료 시간<input id="en" type="time" value="18:00"></label>
+  </div>
+  <div id="dbox" class="fld" style="gap:8px">
+    <span id="dlabel">근무 요일</span>
+    <div id="days" class="days" role="group" aria-labelledby="dlabel"></div>
+  </div>
+  <div id="sbox" hidden class="fld" style="gap:10px">
+    <span>근무 패턴</span>
+    <div class="row3">
+      <label class="fld" for="sn" style="font-weight:500">근무(일)<input id="sn" type="number" inputmode="numeric" min="1" max="14" value="4"></label>
+      <label class="fld" for="sm" style="font-weight:500">휴무(일)<input id="sm" type="number" inputmode="numeric" min="0" max="14" value="2"></label>
+      <label class="fld" for="sd" style="font-weight:500">첫 근무일<input id="sd" type="number" inputmode="numeric" min="1" max="31" value="1"></label>
+    </div>
+    <span class="small-t" style="font-weight:400">첫 근무일은 이번 달 며칠부터 근무가 시작되는지예요.</span>
+  </div>
+  <p id="hint" class="note"></p>
+  <p id="err2" class="err" role="alert"></p>
+  <div class="grow"></div>
+  <button id="n2" class="btn primary block" type="button">다음</button>
+</section>
+
+<section id="s3" class="screen" hidden>
+  <div class="nav"><button class="icb" id="b3" type="button" aria-label="이전 단계"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" data-n="2"></div></div>
+  <h2>내 급여는<br>얼마예요?</h2>
+  <div class="seg" id="seg-basis" role="group" aria-label="월급 또는 연봉"><button type="button" data-v="m" aria-pressed="true">월급</button><button type="button" data-v="y" aria-pressed="false">연봉</button></div>
+  <div class="seg" id="seg-tax" role="group" aria-label="세후 또는 세전"><button type="button" data-v="net" aria-pressed="true">세후</button><button type="button" data-v="gross" aria-pressed="false">세전</button></div>
+  <label class="fld" for="amt"><span id="amtl">월급 (원)</span><input id="amt" type="text" inputmode="numeric" autocomplete="off" value="3,000,000"></label>
+  <p id="est" class="note"></p>
+  <p id="err3" class="err" role="alert"></p>
+  <div class="grow"></div>
+  <button id="n3" class="btn primary block" type="button">다음</button>
+</section>
+
+<section id="s4" class="screen" hidden>
+  <div class="nav"><button class="icb" id="b4" type="button" aria-label="이전 단계"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="dots" data-n="3"></div></div>
+  <h2>월급날은<br>며칠이에요?</h2>
+  <label class="fld" for="pd">매월 (일)<input id="pd" type="number" inputmode="numeric" min="1" max="31" value="25"></label>
+  <p id="pdn" class="note"></p>
+  <p id="err4" class="err" role="alert"></p>
+  <div class="grow"></div>
+  <button id="n4" class="btn primary block" type="button">쌓기 시작</button>
+</section>
+
+<section id="s5" class="screen" hidden style="min-height:0">
+  <div class="top"><img id="hpig" alt=""><h1>나 얼마 벌었지?</h1><button id="gear" class="icb" type="button" aria-label="설정 다시 하기"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button></div>
+  <div id="stage" class="stage"><div class="frame"><canvas id="vc" role="img" aria-label="월급이 쌓이는 도트 그림"></canvas></div></div>
+  <div class="pick">
+    <div><div id="sname" class="sname"></div><div id="sdots" class="sdots"></div></div>
+    <button id="swap" class="icb" type="button" aria-label="다른 그림 보기"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg></button>
+  </div>
+  <div id="status" class="chip">불러오는 중</div>
+  <div class="card">
+    <div class="lbl">이번 달 1일 0시부터 쌓인 돈</div>
+    <div id="big" class="big">0원</div>
+    <div id="brk" class="small-t"></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="월급날까지 진행률"><div id="fill" class="fill"></div></div>
+    <div id="cnt" class="small-t"></div>
+  </div>
+  <div class="card">
+    <div id="sess" class="lbl"></div>
+    <div id="gain" class="mid">+0원</div>
+    <button id="buyb" class="btn small" type="button" aria-expanded="false">그 돈으로 뭘 살 수 있을까요?</button>
+    <div id="buy" class="buy" hidden></div>
+  </div>
+  <div class="card">
+    <div class="lbl">인센티브는 시간으로 쌓이지 않아요. 받은 만큼 직접 넣어 주세요.</div>
+    <div class="irow">
+      <label class="fld" for="iamt">인센티브 (세후, 원)<input id="iamt" type="text" inputmode="numeric" autocomplete="off" placeholder="500,000"></label>
+      <button id="iadd" class="btn" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>추가</button>
+    </div>
+    <p id="ierr" class="err" role="alert"></p>
+    <div id="iinfo" class="small-t"></div>
+    <div><button id="iundo" class="btn small" type="button">방금 입력 취소</button></div>
+  </div>
+  <p class="foot">세전으로 입력한 급여는 4대보험과 소득세를 대략 계산한 추정치예요. 실제 금액과 다를 수 있어요.</p>
+</section>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)};
+var TZ='Asia/Seoul';try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||TZ}catch(e){}
+var FMT=null;try{FMT=new Intl.DateTimeFormat('en-US',{timeZone:TZ,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'})}catch(e){}
+var RM=false;try{RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+function nowP(){var o={};if(FMT){FMT.formatToParts(new Date()).forEach(function(p){if(p.type!=='literal')o[p.type]=Number(p.value)})}else{var n=new Date();o={year:n.getFullYear(),month:n.getMonth()+1,day:n.getDate(),hour:n.getHours(),minute:n.getMinutes(),second:n.getSeconds()}}return{y:o.year,m:o.month,d:o.day,s:(o.hour%24)*3600+o.minute*60+o.second}}
+$('tzn').textContent='('+TZ+')';
+
+var KEY='nle.v1';
+var DEF={0:{st:32400,en:64800,days:[0,1,1,1,1,1,0]},1:{st:36000,en:68400,days:[0,1,1,1,1,1,0]},2:{st:79200,en:21600},3:{st:36000,en:57600,days:[1,0,0,0,0,0,1]}};
+var S={type:0,st:32400,en:64800,days:[0,1,1,1,1,1,0],N:4,M:2,SD:1,basis:'m',tax:'net',amount:3000000,payday:25,scene:0};
+var typeSet=false,saved=null;
+function load(){try{var j=localStorage.getItem(KEY);return j?JSON.parse(j):null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({S:S,done:true}))}catch(e){}}
+saved=load();
+if(saved&&saved.S&&typeof saved.S.type==='number'){for(var k in S){if(saved.S[k]!==undefined)S[k]=saved.S[k]}typeSet=true}
+function ikey(){var n=nowP();return 'nle.inc.'+n.y+'-'+n.m}
+function loadInc(){try{var j=localStorage.getItem(ikey());var a=j?JSON.parse(j):[];return Array.isArray(a)?a.filter(function(v){return typeof v==='number'&&v>0}):[]}catch(e){return[]}}
+var curIK=ikey(),INC=loadInc();
+function saveInc(){try{localStorage.setItem(curIK,JSON.stringify(INC))}catch(e){}}
+
+function fmt(v){return Math.floor(v+1e-6).toLocaleString('ko-KR')+'원'}
+function pad2(n){return n<10?'0'+n:''+n}
+function hhmm(s){return pad2(Math.floor(s/3600))+':'+pad2(Math.floor(s%3600/60))}
+function tm(v){var p=(v||'').split(':');if(p.length<2)return NaN;return Number(p[0])*3600+Number(p[1])*60}
+function clampI(v,a,b,d){v=Math.floor(Number(v));if(!isFinite(v))return d;return Math.max(a,Math.min(b,v))}
+
+function bracket(b){if(b<=14e6)return b*0.06;if(b<=50e6)return 840000+(b-14e6)*0.15;if(b<=88e6)return 6240000+(b-50e6)*0.24;if(b<=150e6)return 15360000+(b-88e6)*0.35;if(b<=300e6)return 37060000+(b-150e6)*0.38;if(b<=500e6)return 94060000+(b-300e6)*0.40;if(b<=1e9)return 174060000+(b-500e6)*0.42;return 384060000+(b-1e9)*0.45}
+function netFromGross(mg){
+  var pen=Math.floor(Math.min(mg,6370000)*0.0475),hi=Math.floor(mg*0.03595),ltc=Math.floor(hi*0.1314),emp=Math.floor(mg*0.009),ins=pen+hi+ltc+emp;
+  var G=mg*12,ded;
+  if(G<=5e6)ded=G*0.7;else if(G<=15e6)ded=3.5e6+(G-5e6)*0.4;else if(G<=45e6)ded=7.5e6+(G-15e6)*0.15;else if(G<=100e6)ded=12e6+(G-45e6)*0.05;else ded=Math.min(14.75e6+(G-100e6)*0.02,20e6);
+  var base=Math.max(0,G-ded-1.5e6-ins*12),tax=bracket(base);
+  var cr=tax<=1.3e6?tax*0.55:715000+(tax-1.3e6)*0.3,lim;
+  if(G<=33e6)lim=740000;else if(G<=70e6)lim=Math.max(660000,740000-(G-33e6)*0.008);else if(G<=120e6)lim=Math.max(500000,660000-(G-70e6)*0.005);else lim=Math.max(200000,500000-(G-120e6)*0.005);
+  tax=Math.max(0,tax-Math.min(cr,lim));
+  var it=Math.floor(tax/12/10)*10,loc=Math.floor(it*0.1/10)*10;
+  return Math.max(0,mg-ins-it-loc);
+}
+function netMonthly(){var a=S.amount||0,mg;if(S.basis==='y'){if(S.tax==='net')return a/12;mg=a/12}else{if(S.tax==='net')return a;mg=a}return netFromGross(mg)}
+
+function nightC(t){var k=Math.floor(t/86400),r=t-k*86400;return k*28800+Math.min(r,21600)+Math.max(0,r-79200)}
+function model(){
+  var np=nowP(),y=np.y,mo=np.m,dim=new Date(Date.UTC(y,mo,0)).getUTCDate();
+  var st=S.st,len=S.en>S.st?S.en-S.st:(S.en<S.st?S.en+86400-S.st:0),days=[];
+  for(var d=1;d<=dim;d++){var dow=new Date(Date.UTC(y,mo-1,d)).getUTCDay(),w=false;
+    if(S.type===2){var cy=Math.max(1,S.N+S.M),ix=(((d-S.SD)%cy)+cy)%cy;w=ix<S.N}
+    else if(S.type===0){w=dow>=1&&dow<=5}else{w=!!S.days[dow]}
+    if(w)days.push(d)}
+  var hi=S.payday<=1?(dim+1)*86400:Math.min(S.payday,dim)*86400,lo=86400,prem=S.type===2;
+  function cw(t){return prem?t+0.5*nightC(t):t}
+  function cum(T){var s=0;for(var i=0;i<days.length;i++){var a=days[i]*86400+st,b=a+len,A=Math.max(a,lo),B=Math.min(b,hi,T);if(B>A)s+=cw(B)-cw(A)}return s}
+  var Wtot=cum(Infinity),net=netMonthly(),nowT=np.d*86400+np.s,working=false,wt=1;
+  if(nowT>=lo&&nowT<hi){for(var q=0;q<days.length;q++){var a2=days[q]*86400+st;if(nowT>=a2&&nowT<a2+len){working=true;break}}}
+  var tod=nowT%86400,night=prem&&(tod<21600||tod>=79200);
+  if(working&&night)wt=1.5;
+  function salAt(T){return Wtot>0?net*cum(T)/Wtot:0}
+  return{np:np,dim:dim,days:days,hi:hi,Wtot:Wtot,net:net,nowT:nowT,working:working,night:working&&night,rate:Wtot>0?net*wt/Wtot:0,salAt:salAt,sal:salAt(nowT),paid:nowT>=hi}
+}
+
+var IT=[[0,'공기 한 모금'],[10,'길바닥 동전 한 닢'],[50,'껌 한 알'],[100,'믹스커피 한 봉'],[500,'종량제 봉투 한 장'],[1000,'츄파춥스 세 개'],[1500,'삼각김밥 하나'],[2500,'컵라면 하나'],[4500,'아메리카노 한 잔'],[6000,'김밥 한 줄'],[9000,'점심 백반 한 끼'],[18000,'치킨 한 마리'],[30000,'삼겹살 2인분'],[50000,'주유 반 탱크'],[100000,'호캉스 하룻밤(할인 시)'],[200000,'운동화 한 켤레'],[500000,'동네 회식 한 번'],[1000000,'제주 왕복 항공권'],[2000000,'국내 여행 열흘치 용돈'],[3000000,'냉장고 한 대']];
+var QP=['지금 쓰지 말고 모아요','월급님이 쌓이는 중이에요','작아 보여도 모이면 커요','이 정도면 괜찮은 하루예요'];
+function pick(a){var r=0;for(var i=0;i<IT.length;i++)if(IT[i][0]<=a)r=i;return r}
+function buyText(a,working){
+  if(a<1)return working?'아직 한 푼도 안 쌓였어요. 조금만 기다려 보세요.':'쉬는 시간이라 쌓인 게 없어요. 지갑도 쉬는 중이에요.';
+  var i1=pick(a),p1=IT[i1][0],c1=p1>0?Math.floor(a/p1):1,t=IT[i1][1]+(c1>=2?' × '+c1:'');
+  var rem=a-c1*p1;if(p1>0&&rem>=10){var i2=pick(rem),p2=IT[i2][0],c2=p2>0?Math.floor(rem/p2):1;if(p2>0)t+=' + '+IT[i2][1]+(c2>=2?' × '+c2:'')}
+  return '살 수 있는 것: '+t+'. '+QP[Math.floor(Date.now()/60000)%QP.length]
+}
+
+var W=64,H=64,off=document.createElement('canvas');off.width=W;off.height=H;var g=off.getContext('2d');
+function P(x,y,c){g.fillStyle=c;g.fillRect(x,y,1,1)}
+function R(x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h)}
+function SP(x,y,rows,pal){for(var j=0;j<rows.length;j++){var r=rows[j];for(var i=0;i<r.length;i++){var ch=r.charAt(i);if(ch!=='.'&&pal[ch]){g.fillStyle=pal[ch];g.fillRect(x+i,y+j,1,1)}}}}
+function mkMask(fn){var m=new Uint8Array(W*H);for(var y=0;y<H;y++)for(var x=0;x<W;x++)if(fn(x,y))m[y*W+x]=1;return m}
+function inM(m,x,y){return x>=0&&y>=0&&x<W&&y<H&&m[y*W+x]===1}
+function fillM(m,fn){for(var y=0;y<H;y++)for(var x=0;x<W;x++)if(m[y*W+x]){g.fillStyle=fn(x,y);g.fillRect(x,y,1,1)}}
+function outlineM(m,col){g.fillStyle=col;var nb=[[1,0],[-1,0],[0,1],[0,-1]];for(var y=0;y<H;y++)for(var x=0;x<W;x++)if(m[y*W+x]){for(var k=0;k<4;k++){var nx=x+nb[k][0],ny=y+nb[k][1];if(nx>=0&&ny>=0&&nx<W&&ny<H&&!m[ny*W+nx])g.fillRect(nx,ny,1,1)}}}
+function tiles(m,tw,x0,x1,y0,y1){var out=[],row=0;for(var ty=y1-tw;ty>=y0;ty-=tw,row++){var r=[];for(var tx=x0;tx+tw<=x1;tx+=tw){var ok=true;for(var dy=0;dy<tw&&ok;dy++){for(var dx=0;dx<tw;dx++){if(!inM(m,tx+dx,ty+dy)){ok=false;break}}}if(ok)r.push([tx,ty])}if(row%2)r.reverse();out=out.concat(r)}return out}
+function rowsMask(y0,rows){return mkMask(function(x,y){var r=rows[y-y0];return !!r&&x>=r[0]&&x<=r[1]})}
+
+var COIN=['.oo.','ohfo','ofdo','.oo.'],COINP={o:'#A8700F',f:'#F4B731',h:'#FFE49A',d:'#DB961C'};
+var BILL=['oooooo','ofhhfo','ofhhfo','oooooo'],BILLP={o:'#3E7A38',f:'#8CC66B',h:'#C8E6A8'};
+var MARB=['.oo.','ohfo','offo','.oo.'];
+var MP=[{o:'#2F6FB5',f:'#5BA8F0',h:'#FFFFFF'},{o:'#1E8F7A',f:'#4FD1B5',h:'#FFFFFF'},{o:'#B13F78',f:'#F27FB5',h:'#FFFFFF'},{o:'#B8791C',f:'#F6C453',h:'#FFFFFF'},{o:'#6B45B8',f:'#A98BF0',h:'#FFFFFF'}];
+var STAR=['o.o.o','.ofo.','ofhfo','.ofo.','o.o.o'];
+var SPAL=[{o:'#E0689A',f:'#FF9EC4',h:'#FFE3EE'},{o:'#4FB88E',f:'#8FE3C0',h:'#E3FFF2'},{o:'#D9B13E',f:'#FFE38A',h:'#FFF6D1'},{o:'#8F6AD9',f:'#C7A8FF',h:'#EFE5FF'}];
+var APPLE=['..sg.','.rrr.','rhrrr','rrrrr','.rrr.'],APALE={s:'#6B4A2B',g:'#4E9E47',r:'#D62F2F',h:'#FF9A9A'};
+var PERSON=['..hhhh......','.hhhhhh.....','.hhsss......','.hssses.....','..ssss......','..bbbb......','.bbbbbb.....','.bbbbbbss...','.bbbbbb.cccc','..bbbb..cddc','..bbbb..cccc','..pppp......','..pppp......','..pp.pp.....','..pp.pp.....','.kkk.kkk....'];
+var PERP={h:'#3A2A1E',s:'#F2C9A0',e:'#2B1B26',b:'#4F8FE6',p:'#3D4A66',k:'#2B2B2B',c:'#8FB4D6',d:'#5E86A8'};
+
+var SC=[];
+(function(){
+  var body=mkMask(function(x,y){return Math.pow((x-26)/20,2)+Math.pow((y-38)/14,2)<=1});
+  var tl=tiles(body,4,6,46,24,52);
+  var ear=rowsMask(19,[[36,39],[35,40],[34,41],[34,41],[34,41],[34,41],[34,41],[34,41]]);
+  var tailPts={'37,6':1,'37,5':1,'36,4':1,'35,4':1,'34,5':1,'35,6':1};
+  var tail=mkMask(function(x,y){return !!tailPts[y+','+x]});
+  var snout=rowsMask(33,[[45,50],[45,51],[45,51],[45,51],[45,51],[45,51],[45,51],[45,51],[45,51],[45,50]]);
+  SC.push({name:'돼지 저금통',cap:12,hide:20,sx:23,sw:3,tl:tl,
+    draw:function(fr,items,f){
+      var n=Math.floor(fr*tl.length+1e-9);
+      R(0,0,64,64,'#FFF1D6');R(0,56,64,8,'#D9B07A');R(0,56,64,1,'#EBCB9B');
+      R(13,50,6,6,'#E88DAE');R(33,50,6,6,'#E88DAE');R(13,55,6,1,'#8E3F5E');R(33,55,6,1,'#8E3F5E');
+      fillM(ear,function(){return '#EF95B5'});outlineM(ear,'#8E3F5E');R(36,21,4,3,'#E07AA0');
+      fillM(tail,function(){return '#EF95B5'});outlineM(tail,'#8E3F5E');
+      fillM(body,function(x,y){return y>=48?'#F7A2BF':'#FFB6CC'});
+      for(var i=0;i<n;i++)SP(tl[i][0],tl[i][1],COIN,COINP);
+      outlineM(body,'#8E3F5E');
+      fillM(snout,function(){return '#F08FB0'});outlineM(snout,'#8E3F5E');
+      R(49,36,1,2,'#B8466E');R(49,39,1,2,'#B8466E');
+      R(40,31,2,3,'#2D1B26');P(40,31,'#FFFFFF');R(41,37,3,2,'#FF8FB1');R(22,25,9,1,'#7A2F4C');
+      for(var b=0;b<items;b++)SP(54+(b%2),52-3*b,BILL,BILLP);
+      return n>0?tl[n-1][1]:52;
+    }});
+})();
+(function(){
+  var glass=mkMask(function(x,y){return(x>=14&&x<=41&&y>=22&&y<=57)||(x>=19&&x<=36&&y>=15&&y<=21)});
+  var bodyM=mkMask(function(x,y){return x>=14&&x<=41&&y>=22&&y<=57});
+  var tl=tiles(bodyM,4,16,40,22,58);
+  var sr=[[44,48,52,56],[46,50,54],[48,52],[50]],sy=[51,47,43,39],spos=[];
+  for(var r=0;r<sr.length;r++)for(var c=0;c<sr[r].length;c++)spos.push([sr[r][c],sy[r]]);
+  SC.push({name:'유리병',cap:10,sx:21,sw:11,tl:tl,marb:true,
+    draw:function(fr,items,f){
+      var n=Math.floor(fr*tl.length+1e-9);
+      R(0,0,64,64,'#E6F0F7');R(0,58,64,6,'#B58B5A');R(0,58,64,1,'#CFA574');
+      R(17,10,22,4,'#B07A45');R(17,10,22,1,'#C99560');R(17,13,22,1,'#8A5C2E');R(18,14,20,1,'#4A6B7D');
+      fillM(glass,function(){return '#D5E6F0'});
+      for(var i=0;i<n;i++)SP(tl[i][0],tl[i][1],MARB,MP[((tl[i][0]>>2)*3+(tl[i][1]>>2)*5)%5]);
+      outlineM(glass,'#4A6B7D');R(15,26,1,14,'#FFFFFF');R(15,43,1,3,'#FFFFFF');
+      R(43,56,19,2,'#EDE6D6');R(43,57,19,1,'#BDB59F');
+      for(var s=0;s<items;s++)SP(spos[s][0],spos[s][1],STAR,SPAL[s%4]);
+      return n>0?tl[n-1][1]:57;
+    }});
+})();
+(function(){
+  function bRow(k,y){var r=k%5,fl=(k/5)|0;
+    if(r===0){R(6,y,36,1,'#6E747E');return}
+    if(r===4){R(6,y,36,1,'#B3B9C3');return}
+    R(6,y,36,1,'#C9CED6');R(6,y,2,1,'#A6ACB6');R(40,y,2,1,'#A6ACB6');R(23,y,2,1,'#A6ACB6');
+    var wx=[9,16,26,33];for(var i=0;i<4;i++)R(wx[i],y,5,1,((fl+i)%3===0)?'#4C86BD':'#7DB9EA')}
+  function fRow(k,y){if(k%5===0)R(6,y,36,1,'#E39A3A');R(6,y,1,1,'#E39A3A');R(41,y,1,1,'#E39A3A');R(23,y,1,1,'#E39A3A')}
+  SC.push({name:'공사 중인 건물',cap:8,sx:10,sw:26,
+    draw:function(fr,items,f){
+      var rows=Math.floor(fr*40+1e-9),k,y;
+      R(0,0,64,64,'#D7E8F7');R(6,8,10,3,'#F4FAFF');R(9,6,6,2,'#F4FAFF');R(40,14,12,3,'#F4FAFF');R(0,58,64,6,'#9A7B55');R(0,58,64,1,'#B28F63');
+      if(items>0){
+        R(49,18,3,40,'#F0B429');for(y=19;y<58;y+=2)P(49+(((y>>1)%2)*2),y,'#B77C0C');
+        R(18,16,44,2,'#F0B429');for(var x=19;x<62;x+=2)P(x,17,'#B77C0C');
+        R(56,18,6,4,'#6B6F78');R(46,18,4,3,'#D14B3A');
+        var sw=RM?0:f,tx=26+Math.round(8*(1+Math.sin(sw/40))),len=14+Math.round(3*Math.sin(sw/25));
+        R(tx,18,3,1,'#444A52');R(tx+1,19,1,len,'#444A52');R(tx-1,19+len,5,4,'#C98A4B');R(tx-1,19+len,5,1,'#7A4A22');R(tx-1,22+len,5,1,'#7A4A22');
+        for(var c=0;c<items;c++){var cx=53+(c%2)*5,cy=54-((c/2)|0)*4;R(cx,cy,5,4,'#C98A4B');R(cx,cy,5,1,'#7A4A22');R(cx,cy+3,5,1,'#7A4A22');P(cx+2,cy+1,'#7A4A22');P(cx+2,cy+2,'#7A4A22')}
+      }
+      for(k=0;k<40;k++){y=57-k;if(k<rows)bRow(k,y);else fRow(k,y)}
+      if(fr>=1){R(23,10,1,8,'#444A52');R(24,10,6,4,'#D62F2F')}
+      return 58-rows;
+    }});
+})();
+(function(){
+  var can=mkMask(function(x,y){return Math.pow(x-36,2)+Math.pow(y-22,2)<=441});
+  var tl=tiles(can,4,16,56,2,43);
+  var ap=[[24,6],[38,4],[48,10],[18,17],[30,14],[44,19],[54,24],[22,35],[36,26],[48,34],[28,36],[16,26]];
+  SC.push({name:'돈나무',cap:12,sx:20,sw:28,tl:tl,
+    draw:function(fr,items,f){
+      var n=Math.floor(fr*tl.length+1e-9),i;
+      R(0,0,64,64,'#DFF1FB');R(0,58,64,6,'#7FB35A');R(0,58,64,1,'#9BCB6E');
+      R(30,56,13,2,'#8B5E3C');R(33,43,7,15,'#8B5E3C');R(35,46,1,10,'#6F4A2E');R(38,50,1,6,'#6F4A2E');
+      fillM(can,function(x,y){if((x*5+y*3)%7===0)return '#4E9E47';if((x*3+y*7)%11===0)return '#8ED06C';return '#6FBF5A'});
+      for(i=0;i<n;i++)SP(tl[i][0],tl[i][1],COIN,COINP);
+      outlineM(can,'#2F6B3A');
+      for(i=0;i<items;i++)SP(ap[i][0],ap[i][1],APPLE,APALE);
+      SP(3,42,PERSON,PERP);R(15,51,2,1,'#5E86A8');R(16,50,1,1,'#5E86A8');
+      var wf=RM?0:f;
+      for(i=0;i<4;i++){var u=((wf/10)+i/4)%1,wx=17+Math.round(9*u),wy=51+Math.round(6*u*u);R(wx,wy,1,2,'#7CC4F5')}
+      return n>0?tl[n-1][1]:43;
+    }});
+})();
+
+function drawPig(c,ox,oy){
+  function p(x,y,col){c.fillStyle=col;c.fillRect(ox+x,oy+y,1,1)}
+  var m=[],x,y;for(y=0;y<16;y++){m[y]=[];for(x=0;x<16;x++)m[y][x]=0}
+  for(y=0;y<16;y++)for(x=0;x<16;x++)if(Math.pow((x-7.5)/6.6,2)+Math.pow((y-9)/5.6,2)<=1)m[y][x]=1;
+  for(y=2;y<=4;y++){for(x=2;x<=4;x++)m[y][x]=1;for(x=11;x<=13;x++)m[y][x]=1}
+  for(y=0;y<16;y++)for(x=0;x<16;x++){if(m[y][x])continue;if((y>0&&m[y-1][x])||(y<15&&m[y+1][x])||(x>0&&m[y][x-1])||(x<15&&m[y][x+1]))p(x,y,'#8A3F5C')}
+  for(y=0;y<16;y++)for(x=0;x<16;x++)if(m[y][x])p(x,y,'#FFB3CB');
+  p(3,3,'#F28BB0');p(4,3,'#F28BB0');p(3,4,'#F28BB0');p(11,3,'#F28BB0');p(12,3,'#F28BB0');p(12,4,'#F28BB0');
+  for(y=0;y<16;y++)for(x=0;x<16;x++)if(Math.pow((x-7.5)/3.3,2)+Math.pow((y-11)/2.4,2)<=1)p(x,y,'#F28BB0');
+  p(6,11,'#B8466E');p(9,11,'#B8466E');
+  p(4,8,'#2D1B26');p(4,9,'#2D1B26');p(11,8,'#2D1B26');p(11,9,'#2D1B26');p(3,10,'#FF8FB1');p(12,10,'#FF8FB1');
+}
+(function(){
+  var fc=document.createElement('canvas');fc.width=16;fc.height=16;var c=fc.getContext('2d');drawPig(c,0,0);
+  var url=fc.toDataURL('image/png');
+  var l=document.createElement('link');l.rel='icon';l.type='image/png';l.href=url;document.head.appendChild(l);
+  $('hpig').src=url;
+})();
+var ic=$('ic'),ictx=ic.getContext('2d'),IW=16,IH=22;
+function fitIntro(){var dpr=window.devicePixelRatio||1,cell=8,dev=Math.max(1,Math.round(cell*dpr));ic.width=IW*dev;ic.height=IH*dev;ic.style.width=(IW*dev/dpr)+'px';ic.style.height=(IH*dev/dpr)+'px'}
+function drawIntro(fr){
+  var t=document.createElement('canvas');t.width=IW;t.height=IH;var c=t.getContext('2d');
+  var cy=RM?2:(Math.floor((fr%28)/2)-4);
+  c.fillStyle='#F4B731';
+  (function(){for(var j=0;j<COIN.length;j++)for(var i=0;i<COIN[j].length;i++){var ch=COIN[j].charAt(i);if(ch!=='.'){c.fillStyle=COINP[ch];c.fillRect(6+i,cy+j,1,1)}}})();
+  drawPig(c,0,6);
+  ictx.imageSmoothingEnabled=false;ictx.clearRect(0,0,ic.width,ic.height);ictx.drawImage(t,0,0,IW,IH,0,0,ic.width,ic.height);
+}
+
+var vc=$('vc'),vctx=vc.getContext('2d');
+function fit(){var av=$('stage').clientWidth||320,dpr=window.devicePixelRatio||1,cell=Math.max(3,Math.floor(av/W)),dev=Math.max(1,Math.round(cell*dpr));while(dev>1&&W*dev/dpr>av)dev--;vc.width=W*dev;vc.height=H*dev;vc.style.width=(W*dev/dpr)+'px';vc.style.height=(H*dev/dpr)+'px'}
+function blit(){vctx.imageSmoothingEnabled=false;vctx.clearRect(0,0,vc.width,vc.height);vctx.drawImage(off,0,0,W,H,0,0,vc.width,vc.height)}
+
+var ids=['s0','s1','s2','s3','s4','s5'],cur=0,editing=false;
+document.querySelectorAll('.dots').forEach(function(d){var n=Number(d.getAttribute('data-n')),h='';for(var i=0;i<4;i++)h+='<i'+(i===n?' class="on"':'')+'></i>';d.innerHTML=h});
+function show(n){cur=n;ids.forEach(function(id,i){$(id).hidden=i!==n});window.scrollTo(0,0);if(n===0)fitIntro();if(n===1)paintType();if(n===2)renderHours();if(n===3)renderPay();if(n===4)renderPd();if(n===5){fit();paintDots()}}
+
+function paintType(){document.querySelectorAll('.opt').forEach(function(b){b.setAttribute('aria-pressed',String(Number(b.getAttribute('data-t'))===S.type))})}
+document.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){var t=Number(b.getAttribute('data-t'));if(S.type!==t||!typeSet){S.type=t;var d=DEF[t];S.st=d.st;S.en=d.en;if(d.days)S.days=d.days.slice()}typeSet=true;paintType()}});
+
+var DN=['일','월','화','수','목','금','토'],dbox=$('days');
+DN.forEach(function(n,i){var b=document.createElement('button');b.type='button';b.className='day';b.textContent=n;b.setAttribute('data-i',i);b.onclick=function(){S.days[i]=S.days[i]?0:1;paintDays();hint()};dbox.appendChild(b)});
+function paintDays(){var fixed=S.type===0;var bs=dbox.children;for(var i=0;i<7;i++){var on=fixed?(i>=1&&i<=5):!!S.days[i];bs[i].setAttribute('aria-pressed',String(on));bs[i].disabled=fixed}$('dlabel').textContent=fixed?'근무 요일 (평일은 월~금 고정)':'근무 요일'}
+function hint(){
+  var st=tm($('st').value),en=tm($('en').value);if(isNaN(st)||isNaN(en)){$('hint').textContent='시작·종료 시간을 입력해 주세요.';return}
+  var len=en>st?en-st:(en<st?en+86400-st:0),h=len/3600,t='하루 '+(Math.round(h*10)/10)+'시간 근무예요.';
+  if(en<st)t+=' 종료가 시작보다 이르면 다음 날 아침까지로 계산해요.';
+  if(S.type===2&&len>0){var nh=(nightC(st+len)-nightC(st))/3600;t+=' 이 중 밤 10시~아침 6시는 '+(Math.round(nh*10)/10)+'시간이고, 이 시간에는 돈이 1.5배 빨리 쌓여요.'}
+  $('hint').textContent=t
+}
+function renderHours(){
+  $('st').value=hhmm(S.st);$('en').value=hhmm(S.en);$('dbox').hidden=S.type===2;$('sbox').hidden=S.type!==2;
+  $('sn').value=S.N;$('sm').value=S.M;$('sd').value=S.SD;paintDays();$('err2').textContent='';hint()
+}
+$('st').oninput=$('en').oninput=$('st').onchange=$('en').onchange=function(){hint()};
+
+function seg(id,key){var el=$(id);el.querySelectorAll('button').forEach(function(b){b.onclick=function(){S[key]=b.getAttribute('data-v');paintSeg(id,key);renderPay()}})}
+function paintSeg(id,key){$(id).querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-v')===S[key]))})}
+seg('seg-basis','basis');seg('seg-tax','tax');
+function commas(n){return n?Number(n).toLocaleString('ko-KR'):''}
+function renderPay(){
+  paintSeg('seg-basis','basis');paintSeg('seg-tax','tax');
+  $('amtl').textContent=(S.basis==='y'?'연봉':'월급')+' ('+(S.tax==='net'?'세후':'세전')+', 원)';
+  if(document.activeElement!==$('amt'))$('amt').value=commas(S.amount);
+  var net=netMonthly(),t;
+  if(!S.amount){t='금액을 입력하면 한 달에 쌓이는 돈을 계산해요.'}
+  else if(S.tax==='gross'){t='세후 월 약 '+fmt(Math.round(net/1000)*1000)+'으로 계산해요. 4대보험과 소득세를 뺀 추정치예요.'}
+  else if(S.basis==='y'){t='세후 월 '+fmt(net)+'으로 계산해요. 연봉을 12로 나눈 금액이에요.'}
+  else{t='세후 월 '+fmt(net)+' 기준으로 쌓여요.'}
+  $('est').textContent=t;$('err3').textContent=''
+}
+$('amt').oninput=function(){var d=this.value.replace(/\D/g,'').slice(0,12);S.amount=Number(d)||0;this.value=commas(S.amount);renderPay()};
+function renderPd(){$('pd').value=S.payday;pdNote();$('err4').textContent=''}
+function pdNote(){var v=clampI($('pd').value,1,31,25);$('pdn').textContent='매월 1일 0시부터 쌓이기 시작해서 '+v+'일 0시에 100%가 돼요. 이후에는 다음 달 1일까지 가득 찬 채로 있어요.'}
+$('pd').oninput=pdNote;
+
+$('go').onclick=function(){show(1)};
+$('b1').onclick=function(){show(saved&&editing?5:0)};
+$('n1').onclick=function(){show(2)};
+$('b2').onclick=function(){show(1)};
+$('n2').onclick=function(){
+  var st=tm($('st').value),en=tm($('en').value),e=$('err2');
+  if(isNaN(st)||isNaN(en)){e.textContent='시작·종료 시간을 입력해 주세요.';return}
+  if(st===en){e.textContent='시작과 종료 시간이 같아요. 다르게 입력해 주세요.';return}
+  if(S.type!==2&&S.type!==0&&!S.days.some(function(v){return v})){e.textContent='근무 요일을 하나 이상 골라 주세요.';return}
+  if(S.type===2){S.N=clampI($('sn').value,1,14,4);S.M=clampI($('sm').value,0,14,2);S.SD=clampI($('sd').value,1,31,1)}
+  S.st=st;S.en=en;e.textContent='';show(3)
+};
+$('b3').onclick=function(){show(2)};
+$('n3').onclick=function(){if(!S.amount){$('err3').textContent='금액을 입력해 주세요.';return}show(4)};
+$('b4').onclick=function(){show(3)};
+$('n4').onclick=function(){
+  var raw=$('pd').value,v=Math.floor(Number(raw));
+  if(!raw||!isFinite(v)||v<1||v>31){$('err4').textContent='월급날은 1~31 사이의 숫자로 입력해 주세요.';return}
+  S.payday=v;save();saved={S:S,done:true};editing=true;sessReset();show(5)
+};
+$('gear').onclick=function(){editing=true;show(1)};
+
+var names=SC.map(function(s){return s.name});
+function paintDots(){
+  $('sname').textContent=names[S.scene];
+  var h='';names.forEach(function(n,i){h+='<button type="button" data-i="'+i+'" aria-label="'+n+'" aria-current="'+(i===S.scene)+'"><i></i></button>'});
+  $('sdots').innerHTML=h;
+  $('sdots').querySelectorAll('button').forEach(function(b){b.onclick=function(){setScene(Number(b.getAttribute('data-i')))}})
+}
+function setScene(i){S.scene=i;drops=[];paintDots();if(saved)save()}
+$('swap').onclick=function(){setScene((S.scene+1)%SC.length)};
+
+$('buyb').onclick=function(){var b=$('buy'),open=b.hidden;b.hidden=!open;this.setAttribute('aria-expanded',String(open))};
+
+function iinfo(){
+  var s=INC.reduce(function(a,b){return a+b},0);
+  $('iinfo').textContent=INC.length?'이번 달 인센티브 '+fmt(s)+' ('+INC.length+'건)':'아직 입력한 인센티브가 없어요.';
+  $('iundo').hidden=!INC.length
+}
+$('iamt').oninput=function(){var d=this.value.replace(/\D/g,'').slice(0,11);this.value=d?Number(d).toLocaleString('ko-KR'):'';$('ierr').textContent=''};
+$('iadd').onclick=function(){
+  var v=Number($('iamt').value.replace(/\D/g,''));
+  if(!v){$('ierr').textContent='인센티브 금액을 입력해 주세요.';return}
+  INC.push(v);saveInc();$('iamt').value='';$('ierr').textContent='';iinfo()
+};
+$('iamt').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();$('iadd').click()}};
+$('iundo').onclick=function(){INC.pop();saveInc();iinfo()};
+
+var drops=[],lastSpawn=0,frame=0,sess={t0:Date.now(),s0:null};
+function sessReset(){sess={t0:Date.now(),s0:null};$('buy').hidden=true;$('buyb').setAttribute('aria-expanded','false')}
+function tick(){
+  frame++;
+  if(cur===0){drawIntro(frame);return}
+  if(cur!==5)return;
+  var ik=ikey();if(ik!==curIK){curIK=ik;INC=loadInc();iinfo()}
+  var M=model(),sc=SC[S.scene],real=Date.now();
+  var incTotal=INC.reduce(function(a,b){return a+b},0);
+  var unit=Math.max(10000,M.net/20),items=incTotal>0?Math.min(sc.cap,Math.max(1,Math.ceil(incTotal/unit))):0;
+  var fr=M.net>0?Math.min(1,M.sal/M.net):0;
+  if(M.working&&real-lastSpawn>=1000){lastSpawn=real;drops.push({x:sc.sx+Math.floor(Math.random()*(sc.sw+1)),y:-4,p:Math.floor(Math.random()*5)})}
+  var top=sc.draw(fr,items,frame),nd=[];
+  var stop=sc.hide!==undefined?sc.hide:top;
+  drops.forEach(function(d){d.y+=2;if(d.y+4>=stop)return;nd.push(d);if(sc.marb)SP(d.x,d.y,MARB,MP[d.p]);else SP(d.x,d.y,COIN,COINP)});
+  drops=nd;blit();
+  var total=M.sal+incTotal;
+  $('big').textContent=fmt(total);
+  $('brk').textContent='월급 '+fmt(M.sal)+(incTotal?' + 인센티브 '+fmt(incTotal):'');
+  var pct=fr*100;$('fill').style.width=pct.toFixed(2)+'%';
+  $('fill').parentNode.setAttribute('aria-valuenow',String(Math.round(pct)));
+  var left=M.hi-M.nowT;
+  if(M.Wtot<=0)$('cnt').textContent='월급날 전에 근무일이 없어요. 근무 설정을 확인해 주세요.';
+  else if(left>0){var dd=Math.floor(left/86400),hh=Math.floor(left%86400/3600);$('cnt').textContent='월급 '+pct.toFixed(1)+'% · 월급날('+Math.min(S.payday,M.dim)+'일)까지 '+dd+'일 '+hh+'시간 남았어요'}
+  else $('cnt').textContent='월급날이 지났어요. 이번 달 월급 100%가 모였어요.';
+  var st=$('status'),r=M.rate;
+  if(M.working){st.className='chip '+(M.night?'night':'on');st.textContent=(M.night?'야간 근무 중 · 1.5배 · ':'근무 중 · ')+'1초에 +'+(r<100?r.toFixed(1):Math.floor(r).toLocaleString('ko-KR'))+'원'}
+  else if(M.paid){st.className='chip';st.textContent='월급날 지남 · 가득 찼어요'}
+  else{st.className='chip';st.textContent='쉬는 중 · 쌓이는 게 멈췄어요'}
+  if(sess.s0===null)sess.s0=M.sal;
+  var el=Math.floor((real-sess.t0)/1000),mi=Math.floor(el/60),se=el%60,hr=Math.floor(mi/60);
+  $('sess').textContent='지금까지 '+(hr?hr+'시간 '+(mi%60)+'분 ':(mi?mi+'분 ':''))+se+'초가 지났어요';
+  var gain=Math.max(0,M.sal-sess.s0);
+  $('gain').textContent='+'+fmt(gain);
+  if(!$('buy').hidden)$('buy').textContent=buyText(gain,M.working)
+}
+window.addEventListener('resize',function(){if(cur===5)fit();if(cur===0)fitIntro()});
+setInterval(tick,50);
+iinfo();
+if(saved&&saved.done){editing=true;show(5)}else{show(0)}
+})();
+</script>
+
+</body>
+</html>
