@@ -8,19 +8,25 @@
 <meta property="og:url" content="https://grayash.github.io/how-much-money/">
 <meta property="og:title" content="내 월급이 도트로 쌓이는 걸 보세요">
 <meta property="og:description" content="일한 시간만큼 월급이 돼지저금통에 쌓여요. 가입 없이 바로 해 보는 계산기예요. 세전 입력은 추정치예요.">
-<meta property="og:image" content="https://grayash.github.io/how-much-money/og-image.png">
+<meta property="og:site_name" content="나 얼마 벌었지?">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="https://grayash.github.io/how-much-money/og-image.png?v=2">
+<meta property="og:image:secure_url" content="https://grayash.github.io/how-much-money/og-image.png?v=2">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="동전이 떨어지는 도트 돼지 저금통과 나 얼마 벌었지? 제목">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="내 월급이 도트로 쌓이는 걸 보세요">
 <meta name="twitter:description" content="일한 시간만큼 월급이 돼지저금통에 쌓여요. 가입 없이 바로 해 보는 계산기예요.">
-<meta name="twitter:image" content="https://grayash.github.io/how-much-money/og-image.png">
+<meta name="twitter:image" content="https://grayash.github.io/how-much-money/og-image.png?v=2">
 <meta name="theme-color" content="#EEF2FF">
 <meta name="1in200m" content="7c602c9de3e451c0">
 <link rel="canonical" href="https://grayash.github.io/how-much-money/">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg?v=2" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png?v=2" sizes="32x32" type="image/png">
+<link rel="shortcut icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -606,7 +612,7 @@ $('iadd').onclick=function(){
 $('iamt').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();$('iadd').click()}};
 $('iundo').onclick=function(){INC.pop();saveInc();iinfo()};
 
-var SITE='https://grayash.github.io/how-much-money/',TXT='내 월급이 도트로 쌓이는 걸 보세요';
+var SITE='https://grayash.github.io/how-much-money/?v=2',TXT='내 월급이 도트로 쌓이는 걸 보세요';
 var lastRes=null,shareBlob=null,shareBusy=false;
 try{document.fonts.load('40px Jua');document.fonts.load('40px DotGothic16')}catch(e){}
 function setMsg(id,t){var m=$(id);if(m)m.textContent=t}
