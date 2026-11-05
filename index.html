@@ -551,5 +551,25 @@ if(saved&&saved.done){editing=true;show(5)}else{show(0)}
 })();
 </script>
 
+<script type="module">
+(async function(){
+  try{
+    var app=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    var an=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js");
+    var firebaseConfig={
+      apiKey:"AIzaSyA1a3tytVCNVhz0_e_75s-y3hZ7GRX3hJE",
+      authDomain:"how-much-money-ab31e.firebaseapp.com",
+      projectId:"how-much-money-ab31e",
+      storageBucket:"how-much-money-ab31e.firebasestorage.app",
+      messagingSenderId:"172323452587",
+      appId:"1:172323452587:web:10cdfe5ae357ea9543a9ee",
+      measurementId:"G-BXSLJWVJYV"
+    };
+    var fb=app.initializeApp(firebaseConfig);
+    if(await an.isSupported())an.getAnalytics(fb);
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
