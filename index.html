@@ -47,7 +47,10 @@ a.btn{text-decoration:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12152B;--panel:#1C2142;--ink:#F2F4FF;--muted:#A5ACDB;--line:#363D70;--soft:#252B55;--pink:#FF7FAE;--pink-ink:#2A0F1B;--coin:#FFC93C;--coin2:#E3A91F;--coin-ink:#2B2000;--ok:#4AD395;--warn:#FFA06B;--shadow:#05060F;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#12152B;--panel:#1C2142;--ink:#F2F4FF;--muted:#A5ACDB;--line:#363D70;--soft:#252B55;--pink:#FF7FAE;--pink-ink:#2A0F1B;--coin:#FFC93C;--coin2:#E3A91F;--coin-ink:#2B2000;--ok:#4AD395;--warn:#FFA06B;--shadow:#05060F;color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;word-break:keep-all;overflow-wrap:break-word;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+p,li,span{text-wrap:pretty}
+.fb{text-align:center}.fb a{display:inline-block;padding:8px 6px;color:var(--muted);font-size:14px;text-underline-offset:3px}
+.priv{font-size:14px;color:var(--muted);text-align:center;max-width:24em;margin:0 auto}
 .wrap{max-width:460px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 32px}
 .screen{display:flex;flex-direction:column;gap:16px;min-height:calc(100vh - 48px)}
 .grow{flex:1}
@@ -117,7 +120,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-o
 .small-t{font-size:14px;color:var(--muted)}
 .buy{font-size:15px;background:var(--soft);border-radius:6px;padding:10px 12px}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
-.foot{font-size:13px;color:var(--muted);padding:4px 2px}
+.foot{font-size:14px;color:var(--muted);padding:4px 2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (prefers-reduced-motion:reduce){.btn,.opt,.icb{transition:none}}
 </style>
@@ -133,6 +136,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-o
   <button id="go" class="btn primary block" type="button">시작하기</button>
   <button id="go0share" class="btn block" type="button">링크 공유하기</button>
   <p id="smsg0" class="small-t" role="status"></p>
+  <p class="priv">입력한 급여와 근무 시간은 이 폰에만 저장되고 어디에도 보내지 않아요. 방문 통계만 익명으로 집계해요.</p>
+  <p class="fb"><a href="https://github.com/grayash/how-much-money/issues/new?title=%EC%9D%98%EA%B2%AC%3A%20" target="_blank" rel="noopener">의견 보내기</a></p>
 </section>
 
 <section id="s1" class="screen" hidden>
@@ -239,6 +244,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-o
     <p class="small-t">공유 그림에는 지금 쌓인 금액이 들어가요.</p>
   </div>
   <p class="foot">세전으로 입력한 급여는 4대보험과 소득세를 대략 계산한 추정치예요. 실제 금액과 다를 수 있어요.</p>
+  <p class="fb"><a href="https://github.com/grayash/how-much-money/issues/new?title=%EC%9D%98%EA%B2%AC%3A%20" target="_blank" rel="noopener">의견 보내기</a></p>
 </section>
 
 </div>
